@@ -1,0 +1,4 @@
+[package]
+name = "futhark2latin"
+version = "0.1.0"
+edition = "2021"
