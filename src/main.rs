@@ -30,7 +30,7 @@ fn main() {
         .skip(1)
         .find(|arg| arg == "-f" || arg == "--futhark")
     {
-        // Collect the string of Futhark runes that follows it.
+        // Collect the string of Futhark runes that follows the "-f" flag.
         let runes: String = std::env::args()
             .skip_while(|arg| arg != &futhark)
             .skip(1)
@@ -45,5 +45,41 @@ fn main() {
         println!("{}", latin);
     } else {
         println!("{}", HELP_TEXT);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn translation_test() {
+        assert_eq!(translate('ᚠ'), "f");
+        assert_eq!(translate('ᚢ'), "u");
+        assert_eq!(translate('ᚦ'), "þ");
+        assert_eq!(translate('ᚨ'), "a");
+        assert_eq!(translate('ᚱ'), "r");
+        assert_eq!(translate('ᚲ'), "k");
+        assert_eq!(translate('ᚷ'), "g");
+        assert_eq!(translate('ᚹ'), "w");
+        assert_eq!(translate('ᚺ'), "h");
+        assert_eq!(translate('ᚻ'), "h");
+        assert_eq!(translate('ᚾ'), "n");
+        assert_eq!(translate('ᛁ'), "i");
+        assert_eq!(translate('ᛃ'), "j");
+        assert_eq!(translate('ᛇ'), "æ");
+        assert_eq!(translate('ᛈ'), "p");
+        assert_eq!(translate('ᛉ'), "z");
+        assert_eq!(translate('ᛊ'), "s");
+        assert_eq!(translate('ᛋ'), "s");
+        assert_eq!(translate('ᛏ'), "t");
+        assert_eq!(translate('ᛒ'), "b");
+        assert_eq!(translate('ᛖ'), "e");
+        assert_eq!(translate('ᛗ'), "m");
+        assert_eq!(translate('ᛚ'), "l");
+        assert_eq!(translate('ᛜ'), "ŋ");
+        assert_eq!(translate('ᛟ'), "o");
+        assert_eq!(translate('ᛞ'), "d");
+        assert_eq!(translate('?'), "?");
     }
 }
