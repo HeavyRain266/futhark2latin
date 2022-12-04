@@ -1,103 +1,49 @@
-fn futhark_to_latin(rune: char) -> char {
-    match rune {
-        'ᚠ' => 'f',
-        'ᚢ' => 'u',
-        'ᚦ' => 'þ',
-        'ᚨ' => 'a',
-        'ᚱ' => 'r',
-        'ᚲ' => 'k',
-        'ᚷ' => 'g',
-        'ᚹ' => 'w',
-        'ᚺ' => 'h',
-        'ᚻ' => 'h',
-        'ᚾ' => 'n',
-        'ᛁ' => 'i',
-        'ᛃ' => 'j',
-        'ᛇ' => 'æ',
-        'ᛈ' => 'p',
-        'ᛉ' => 'z',
-        'ᛊ' => 's',
-        'ᛋ' => 's',
-        'ᛏ' => 't',
-        'ᛒ' => 'b',
-        'ᛖ' => 'e',
-        'ᛗ' => 'm',
-        'ᛚ' => 'l',
-        'ᛜ' => 'ŋ',
-        'ᛟ' => 'o',
-        'ᛞ' => 'd',
-        '-' => ' ',
+use std::collections::HashMap;
 
-        rune => rune,
-    }
-}
+#[rustfmt::skip]
+fn translate(rune: char) -> String {
+    let futhark_map: HashMap<char, char> = HashMap::from_iter([
+        ('ᚠ', 'f'), ('ᚢ', 'u'), ('ᚦ', 'þ'), ('ᚨ', 'a'), ('ᚱ', 'r'),
+        ('ᚲ', 'k'), ('ᚷ', 'g'), ('ᚹ', 'w'), ('ᚺ', 'h'), ('ᚻ', 'h'),
+        ('ᚾ', 'n'), ('ᛁ', 'i'), ('ᛃ', 'j'), ('ᛇ', 'æ'), ('ᛈ', 'p'),
+        ('ᛉ', 'z'), ('ᛊ', 's'), ('ᛋ', 's'), ('ᛏ', 't'), ('ᛒ', 'b'),
+        ('ᛖ', 'e'), ('ᛗ', 'm'), ('ᛚ', 'l'), ('ᛜ', 'ŋ'), ('ᛟ', 'o'),
+        ('ᛞ', 'd'),
+    ]);
 
-fn latin_to_futhark(script: char) -> char {
-    match script {
-        'f' => 'ᚠ',
-        'u' => 'ᚢ',
-        'þ' => 'ᚦ',
-        'a' => 'ᚨ',
-        'r' => 'ᚱ',
-        'k' => 'ᚲ',
-        'g' => 'ᚷ',
-        'w' => 'ᚹ',
-        'h' => 'ᚺ',
-        'n' => 'ᚾ',
-        'i' => 'ᛁ',
-        'j' => 'ᛃ',
-        'æ' => 'ᛇ',
-        'p' => 'ᛈ',
-        'z' => 'ᛉ',
-        's' => 'ᛊ',
-        't' => 'ᛏ',
-        'b' => 'ᛒ',
-        'e' => 'ᛖ',
-        'm' => 'ᛗ',
-        'l' => 'ᛚ',
-        'ŋ' => 'ᛜ',
-        'o' => 'ᛟ',
-        'd' => 'ᛞ',
-        '-' => ' ',
-
-        script => script,
-    }
+    // Find the Latin character corresponding to the given Futhark rune.
+    // If no such character exists, return the rune itself.
+    futhark_map
+        .iter()
+        .find(|(f, _)| *f == &rune)
+        .map_or_else(|| rune.to_string(), |(_, l)| l.to_string())
 }
 
 fn main() {
-    let mut args = std::env::args();
+    const HELP_TEXT: &str = r#"Usage: futhark2lating -f <runes>
+  Converts a string of Futhark runes to Latin letters
 
-    while let Some(arg) = args.next() {
-        match arg.as_str() {
-            "-f" | "--futhark" => {
-                if let Some(futhark) = args.next() {
-                    println!(
-                        "{}",
-                        futhark.chars().map(futhark_to_latin).collect::<String>()
-                    )
-                } else {
-                    panic!("Add at least one argument");
-                }
-            }
-            "-l" | "--latin" => {
-                if let Some(latin) = args.next() {
-                    println!(
-                        "{}",
-                        latin.chars().map(latin_to_futhark).collect::<String>()
-                    )
-                } else {
-                    panic!("Add at least one argument");
-                }
-            }
-            _ => {}
-        }
-    }
-}
+  -f, --futhark <futhark>   the string of Futhark runes to convert
+  -h, --help                display this help and exit"#;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test() {
-        todo!("Add test suite!")
+    if let Some(futhark) = std::env::args()
+        .skip(1)
+        .find(|arg| arg == "-f" || arg == "--futhark")
+    {
+        // Collect the string of Futhark runes that follows it.
+        let runes: String = std::env::args()
+            .skip_while(|arg| arg != &futhark)
+            .skip(1)
+            .collect();
+
+        // Cconvert each Futhark rune to its corresponding Latin letter.
+        let latin: String = runes
+            .split_whitespace()
+            .map(|substr| substr.chars().map(translate).collect::<String>())
+            .collect::<String>();
+
+        println!("{}", latin);
+    } else {
+        println!("{}", HELP_TEXT);
     }
 }
